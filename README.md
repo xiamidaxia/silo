@@ -1,5 +1,5 @@
 
-## flatdoc
+## Silo
 
 ### Support Schema type
 
@@ -18,9 +18,3 @@
   - required
   - defaultValue
 
-
-### TODO
-
-- alias
-- validator支持promise
-- array schema

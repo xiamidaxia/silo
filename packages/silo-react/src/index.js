@@ -1,7 +1,7 @@
 import applyMiddleware from 'redux/lib/applyMiddleware'
+import createStore from 'redux/lib/createStore'
 import compose from 'redux/lib/compose'
 import createSiloStore from './createSiloStore'
-import createStore from './createStore'
 import connect from './connect'
 import Provider from './Provider'
 

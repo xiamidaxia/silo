@@ -1,4 +1,4 @@
-import miniCreateStore from './createStore'
+import reduxCreateStore from 'redux/lib/createStore'
 import { batchedUpdates } from './batchedUpdates'
 import { mapValues } from './utils'
 
@@ -14,7 +14,7 @@ const execMap = {
   action: 'actions',
 }
 
-export default function createSiloStore(initData = {}, createStore = miniCreateStore) {
+export default function createSiloStore(initData = {}, createStore = reduxCreateStore) {
   if (typeof initData !== 'object') {
     throw new Error('InitData must be an object.')
   }

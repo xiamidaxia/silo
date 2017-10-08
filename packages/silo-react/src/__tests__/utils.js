@@ -26,3 +26,9 @@ export function addTestPath(store) {
     },
   })
 }
+
+export function addEmptyPath(store) {
+  store.createPath('empty', {
+    state: {},
+  })
+}

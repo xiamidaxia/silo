@@ -1,11 +1,12 @@
 {
-  "name": "silo-store",
+  "name": "silo-react",
   "version": "0.1.0",
-  "description": "Simple client ORM document",
+  "description": "",
   "main": "lib/index.js",
   "scripts": {
     "start": "dora --plugins \"webpack,hmr,proxy,livereload\" --verbose",
-    "build": "make build",
+    "build": "NODE_ENV=production atool-build",
+    "babel-build": "make build",
     "test": "make test",
     "test:watch": "make test-watch",
     "test:cover": "make test-cover",
@@ -15,19 +16,21 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/xiamidaxia/flatdoc.git"
+    "url": ""
   },
   "entry": {
     "index": "./src/index.js"
   },
   "keywords": [],
-  "author": "xiamidaxia@icloud.com",
+  "author": {
+    "name": "xiamidaxia",
+    "email": "xiamidaxia@icloud.com"
+  },
   "license": "MIT",
   "dependencies": {
-    "bson": "^1.0.4",
-    "enums": "^1.0.1",
-    "graphql-parser": "^2.1.0",
-    "moment": "^2.18.1"
+    "hoist-non-react-statics": "^2.3.1",
+    "lodash": "^4.17.4",
+    "redux": "^3.7.2"
   },
   "devDependencies": {
     "atool-build": "^1.0.2",
@@ -51,9 +54,10 @@
     "eslint-plugin-react": "^7.x",
     "expect": "^21.2.1",
     "jest": "^20.0.4",
-    "pre-commit": "^1.2.2",
+    "pre-commit": "^1.1.2",
     "react": "^16.0.0",
-    "react-dom": "^16.0.0"
+    "react-dom": "^16.0.0",
+    "react-test-renderer": "^16.0.0"
   },
   "jest": {
     "automock": false

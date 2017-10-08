@@ -4,6 +4,5 @@ export default {
     default: val => typeof val === 'string',
   },
   transformer: {
-    defaultNow: () => Date.now(),
   },
 }

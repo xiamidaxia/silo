@@ -1,7 +1,7 @@
 import expect from 'expect'
-import createSchemaManager from '../silo-schema'
-import ArraySchema from '../builtin-schemas/Array'
-import StringSchema from '../builtin-schemas/String'
+import SiloSchema from '../SiloSchema'
+import ArraySchema from '../builtins/Array'
+import StringSchema from '../builtins/String'
 
 async function check(fn, obj) {
   try {
@@ -11,14 +11,14 @@ async function check(fn, obj) {
   }
 }
 
-describe('schema', () => {
+describe('SiloSchema', () => {
   let schema = {}
   beforeEach(() => {
-    schema = createSchemaManager()
+    schema = new SiloSchema()
   })
   it('create schema', () => {
-    expect(() => schema.addSchema({})).toThrow(/name required/)
-    schema.addSchema({
+    expect(() => schema.add({})).toThrow(/name required/)
+    schema.add({
       name: 'String',
       validator: {
         max() {},
@@ -27,20 +27,20 @@ describe('schema', () => {
         trim() {},
       },
     })
-    expect(() => schema.addSchema({ name: 'String' })).toThrow(/conflicted/)
-    expect(() => schema.addSchema({
+    expect(() => schema.add({ name: 'String' })).toThrow(/conflicted/)
+    expect(() => schema.add({
       name: 'Address',
       struct: {
         province: { type: 'unknown' },
       },
     })).toThrow(/"unknown" undefined/)
-    expect(() => schema.addSchema({
+    expect(() => schema.add({
       name: 'Address',
       struct: {
         province: { type: 'String', unknown: 'unknown' },
       },
     })).toThrow(/"unknown" undefined/)
-    const addressSchema = schema.addSchema({
+    const addressSchema = schema.add({
       name: 'Address',
       struct: {
         province: { type: 'String!' },
@@ -49,9 +49,9 @@ describe('schema', () => {
     expect(addressSchema.struct.province.required).toBe(true)
   })
   it('schema array', () => {
-    schema.addSchema(ArraySchema)
-    schema.addSchema({ name: 'String' })
-    const addressSchema = schema.addSchema({
+    schema.add(ArraySchema)
+    schema.add({ name: 'String' })
+    const addressSchema = schema.add({
       name: 'Address',
       struct: {
         city: { type: '[String]!' },
@@ -60,7 +60,7 @@ describe('schema', () => {
     expect(addressSchema.struct.city.type).toBe('Array')
     expect(addressSchema.struct.city.arrayType).toBe('String')
     expect(addressSchema.struct.city.required).toBe(true)
-    expect(() => schema.addSchema({
+    expect(() => schema.add({
       name: 'Address2',
       struct: {
         province: { type: '[unknownType]' },
@@ -68,7 +68,7 @@ describe('schema', () => {
     })).toThrow(/"unknownType" undefined/)
   })
   it('default validator', async () => {
-    const strSchema = schema.addSchema({
+    const strSchema = schema.add({
       name: 'String',
       validator: {
         default: val => typeof val === 'string',
@@ -77,24 +77,24 @@ describe('schema', () => {
     await check(() => strSchema.value(3), { validName: 'default' })
   })
   it('value', async () => {
-    const strSchema = schema.addSchema({
+    const strSchema = schema.add({
       name: 'String',
       validator: {
         max: (val, max) => val.length <= max.length,
       },
       transformer: {
         trim: val => val.trim(),
-        default: (val, r) => (val === undefined ? r : val),
+        defaultValue: (val, r) => (val === undefined ? r : val),
       },
     })
-    expect(await strSchema.value(undefined, { default: 'default' })).toBe('default')
+    expect(await strSchema.value(undefined, { defaultValue: 'default' })).toBe('default')
     expect(await strSchema.value(' trim  ')).toBe(' trim  ')
     expect(await strSchema.value(' trim  ', { trim: true })).toBe('trim')
     await check(() => strSchema.value('1234', { max: 3 }), { validName: 'max', ruleValue: 3, validValue: '1234', path: [] })
   })
   it('struct value', async () => {
-    schema.addSchema(StringSchema)
-    const addr = schema.addSchema({
+    schema.add(StringSchema)
+    const addr = schema.add({
       name: 'Address',
       validator: {
         noBeijing: obj => obj.city !== 'Beijing',
@@ -122,7 +122,7 @@ describe('schema', () => {
       validValue: { city: 'Beijing', province: undefined },
       path: [],
     })
-    const user = schema.addSchema({
+    const user = schema.add({
       name: 'User',
       struct: {
         address: { type: 'Address' },
@@ -136,15 +136,15 @@ describe('schema', () => {
     })
   })
   it('struct array value', async () => {
-    schema.addSchema(StringSchema)
-    schema.addSchema(ArraySchema)
-    const addr = schema.addSchema({
+    schema.add(StringSchema)
+    schema.add(ArraySchema)
+    const addr = schema.add({
       name: 'Address',
       struct: {
         city: { type: '[String]', noEmpty: true },
       },
     })
-    const user = schema.addSchema({
+    const user = schema.add({
       name: 'User',
       struct: {
         addrs: { type: '[Address]!' },
@@ -161,9 +161,9 @@ describe('schema', () => {
     await check(() => user.value(val), { path: ['addrs', 0, 'city', 0] })
   })
   it('struct array item rule', async () => {
-    schema.addSchema(StringSchema)
-    schema.addSchema(ArraySchema)
-    const addr = schema.addSchema({
+    schema.add(StringSchema)
+    schema.add(ArraySchema)
+    const addr = schema.add({
       name: 'Address',
       struct: {
         city: { type: '[String]', noEmpty: true, itemRule: { max: 3 } },

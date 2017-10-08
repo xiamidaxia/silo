@@ -24,9 +24,12 @@ function normalizeType(typeString) {
   return { required, type: typeString }
 }
 
-export default function schemaManager() {
-  const schemas = {}
-  function addSchema({ name, validator = {}, struct = {}, transformer = {}, error = defaultError }) {
+export default class SilosSchema {
+  constructor() {
+    this.schemas = {}
+  }
+  add({ name, validator = {}, struct = {}, transformer = {}, error = defaultError }) {
+    const schemas = this.schemas
     if (!name) throw new Error('Schema name required!')
     if (schemas[name]) throw new Error(`Schema ${name} conflicted!`)
     validator = {
@@ -34,7 +37,7 @@ export default function schemaManager() {
       ...validator,
     }
     transformer = {
-      default: (val, r) => (val === undefined ? r : val),
+      defaultValue: (val, r) => (val === undefined ? r : val),
       ...transformer,
     }
     const currentSchema = {
@@ -51,7 +54,7 @@ export default function schemaManager() {
       if (!schemas[obj.type]) throw new Error(`Schema type "${obj.type}" undefined`)
       if (obj.arrayType && !schemas[obj.arrayType]) throw new Error(`Schema array type "${obj.arrayType}" undefined`)
       const currentSupportKeys = schemas[obj.type].supportKeys
-      shouldSupportKeys(`Schema ${name} struct ${key} key`, currentSupportKeys)(obj)
+      shouldSupportKeys(`Schema ${name}/${key}/ key`, currentSupportKeys)(obj)
       return obj
     })
     const noDefaultTransformer = filter(transformer, (val, key) => key !== 'default')
@@ -70,7 +73,7 @@ export default function schemaManager() {
           })
         }
       }
-      val = await transformer.default(val, rule.default, schemas)
+      val = await transformer.defaultValue(val, rule.defaultValue, schemas)
       // transformer
       val = await promiseReduce(noDefaultTransformer, (res, fn, key) => {
         if (rule[key] !== undefined) return fn(res, rule[key], schemas)
@@ -99,9 +102,5 @@ export default function schemaManager() {
     }
     schemas[name] = currentSchema
     return currentSchema
-  }
-  return {
-    schemas,
-    addSchema,
   }
 }

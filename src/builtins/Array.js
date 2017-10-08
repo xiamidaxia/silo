@@ -3,11 +3,6 @@ export default {
   name: 'Array',
   validator: {
     default: val => Array.isArray(val),
-    range() {
-    },
-    match(val, rule) {
-      return rule.test(val)
-    },
     max(val, max) {
       return val.length <= max
     },
